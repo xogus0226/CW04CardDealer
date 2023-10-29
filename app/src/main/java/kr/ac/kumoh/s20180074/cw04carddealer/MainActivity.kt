@@ -3,25 +3,40 @@ package kr.ac.kumoh.s20180074.cw04carddealer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
 import kr.ac.kumoh.s20180074.cw04carddealer.databinding.ActivityMainBinding
 import kotlin.random.Random
 
 class MainActivity : AppCompatActivity(){
-    private lateinit var main : ActivityMainBinding
+    private lateinit var _main : ActivityMainBinding
+    private lateinit var _imgViews : Array<ImageView>
+    private lateinit var _numbers : IntArray
     override fun onCreate(savedInstanceState : Bundle?){
         super.onCreate(savedInstanceState)
         // TODO: 액티비티 초기화
-        main = ActivityMainBinding.inflate(layoutInflater)
+        _main = ActivityMainBinding.inflate(layoutInflater)
+        _imgViews = arrayOf(_main.card1, _main.card2, _main.card3, _main.card4, _main.card5)
+        _numbers = IntArray(5) { -1 }
 
-        val c = Random.nextInt(52) // 52장 중 랜덤으로 뽑기
-        Log.i("뽑힌숫자", "${c}")
-        // getCardName() : 숫자에 해당하는 파일명 얻어오기
-        // getIdentifier() : 원하는 파일명, 찾고자 하는 res 내의 폴더명, 패키지명으로 해당 리소스의 id를 얻어오기
-        val res = resources.getIdentifier(getCardName(c), "drawable", packageName)
+        // _numbers에 중복없이 랜덤 숫자를 채우기
+        var randNum = 0
+        for(i in _numbers.indices){
+            do{
+                randNum = Random.nextInt(52)
 
-        main.card1.setImageResource(res) // 해당 리소스로 이미지 설정하기
+            }while (_numbers.contains(randNum))
+            _numbers[i] = randNum
+        }
+        _numbers.sort()
+        Log.i("리스트", "${_numbers[0]} ${_numbers[1]} ${_numbers[2]} ${_numbers[3]} ${_numbers[4]}")
 
-        setContentView(main.root)
+        // _numbers 각각의 숫자에 대응되는 파일명으로 변환하고, 모든 이미지 뷰들의 이미지를 이것으로 설정하기
+        _imgViews.forEachIndexed{index, eachImageView ->
+            val idCard = resources.getIdentifier(getCardName(_numbers[index]), "drawable", packageName)
+            eachImageView.setImageResource(idCard)
+        }
+
+        setContentView(_main.root)
     }
 
     fun getCardName(c: Int): String{
@@ -34,7 +49,7 @@ class MainActivity : AppCompatActivity(){
         }
         val number = when(c % 13){
             0 -> "ace"
-            in 1..9 -> "${c % 13}"
+            in 1..9 -> "${c % 13 + 1}"
             10 -> "jack"
             11 -> "queen"
             12 -> "king"
