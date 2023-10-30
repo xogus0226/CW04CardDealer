@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageView
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import kr.ac.kumoh.s20180074.cw04carddealer.databinding.ActivityMainBinding
 import kotlin.random.Random
@@ -19,12 +20,14 @@ class MainActivity : AppCompatActivity(){
         _imgViews = arrayOf(_main.card1, _main.card2, _main.card3, _main.card4, _main.card5)
         _model = ViewModelProvider(this)[CardDealerViewModel::class.java]
 
-        // 화면 렌더링
-        setImageViews() // 최초 실행 시 모든 카드를 조커로 보이기
         setContentView(_main.root)
 
+        _model.cards.observe(this, Observer{
+            setImageViews()
+        })
+
         // 클릭 이벤트 리스너 달기
-        _main.btnShuffle.setOnClickListener{ shuffleAndRender() }
+        _main.btnShuffle.setOnClickListener{ _model.shuffle() }
     }
 
     fun getCardName(c: Int): String{
